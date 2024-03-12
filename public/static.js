@@ -1,4 +1,4 @@
-window.buildMode = 'scan'
+window.buildMode = 'confirm'
 window.nowLocation = '海口T1机场'
 window.airportType = '718002'
 window.terminal = 'T1'

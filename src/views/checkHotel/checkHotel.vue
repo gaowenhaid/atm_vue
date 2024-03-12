@@ -23,18 +23,16 @@ export default {
   },
   data() {
     return {
-      active: "亚论大酒店 & BFA Hotel",
+      active: "博鳌亚洲论坛大酒店 & BFA Hotel",
       list: [
-        '亚论大酒店 & BFA Hotel',
-        '和悦大酒店 & Holliyard Seaview Resort',
-        '东屿岛大酒店 & Dong Yu Islang Hotel',
-        '亚洲湾度假酒店 & Boao Asia Bay Resort',
-        '金海岸酒店 & Golden Coast Hot Spring Hotel',
-        '华美达大酒店 & Ramada Hotel/Suites Boao',
-        '道纪酒店 & To Kee Hotel',
-        '金湾康斯宾悦酒店 & Comfort Hotel(King Bay)',
-        '培兰桥注册中心 & Peilanqiao Registration Center',
-        '其他 other',
+        '博鳌亚洲论坛大酒店 & BFA Hotel',
+        '博鳌亚洲论坛东屿岛大酒店 & BFA Dongyu Island Hotel',
+        '博鳌亚洲论坛金海岸大酒店 & BFA Golden Coast Hotel',
+        '博鳌亚洲湾国际大酒店 & Bo‘ao Asia Bay International Hotel',
+        '琼海博鳌和悦海景酒店 & Oionghai Boao Holliyard Hotel',
+        '海南博鳌道纪海景大酒店 & Qionghai Bo‘ao Tao Ji Seaview Hotel',
+        '博鳌佰悦湾真如酒店 & Zhen Hotel Bo‘ao Byou Bay',
+        '博鳌悦心康养酒店 & Boao Yuexin Healing Hotel',
       ],
       hotelName: "",
       confirmationNumber: '', // 确认号

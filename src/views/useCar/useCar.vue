@@ -7,7 +7,6 @@
         <p>是否使用年会统调接机车辆</p>
         <p>Whether to use annual meeting coordinationand pick-up vehicles</p>
         <img src="../../assets/车.png" alt="">
-
       </div>
       <div class="line">
         <div class="left">
@@ -27,12 +26,13 @@
           <p class="no" @click.prevent="toQRcODE">否 No</p>
         </div>
       </div>
+      <p class="back" @click.prevent="backTep">上一步 Back</p>
     </div>
   </div>
 </template>
 
 <script>
-import Header from '../../components/header';
+import Header from '../../components/header'
 import Req from '../../utils/request'
 export default {
   components: {
@@ -40,7 +40,7 @@ export default {
   },
   data() {
     return {
-      useCarNumber: "1",  // 乘车人数
+      useCarNumber: '1', // 乘车人数
       confirmationNumber: '' // 确认号
     }
   },
@@ -49,8 +49,8 @@ export default {
     window.addEventListener('popstate', function () {
       history.pushState(null, null, document.URL)
     })
-    let { value, confirmationNumber } = this.$route.query  // 乘车人数
-    if (confirmationNumber) this.confirmationNumber = confirmationNumber  // 确认号
+    let { value, confirmationNumber } = this.$route.query // 乘车人数
+    if (confirmationNumber) this.confirmationNumber = confirmationNumber // 确认号
     if (value) {
       this.useCarNumber = value
     } else {
@@ -70,10 +70,13 @@ export default {
     },
     // 去乘车选择酒店(确定)
     toCheckHotel() {
-      if (Number(this.useCarNumber).toString() != 'NaN' && Number(this.useCarNumber) >= 1) {
+      if (
+        Number(this.useCarNumber).toString() != 'NaN' &&
+        Number(this.useCarNumber) >= 1
+      ) {
         const params = {
           confirmationNumber: this.confirmationNumber,
-          rideFlag: '115001',  // 115001 是  115002 否
+          rideFlag: '115001', // 115001 是  115002 否
           ridingNumber: this.useCarNumber
         }
         this.confirmSuccess(params, '115001')
@@ -90,50 +93,65 @@ export default {
       // 确认号方式 | 选择了不乘车  | 直接跳转小程序二维码页面
       const params = {
         confirmationNumber: this.confirmationNumber,
-        rideFlag: '115002',  // 115001 是  115002 否
+        rideFlag: '115002', // 115001 是  115002 否
         ridingNumber: 1
       }
       this.confirmSuccess(params, '115002')
     },
     confirmSuccess(params, flag) {
-      let formData = new FormData();
+      let formData = new FormData()
       for (const key in params) {
-        formData.append(key, params[key]);
+        formData.append(key, params[key])
       }
       const loading = this.$loading({
         lock: true,
         text: 'Loading',
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
-      });
-      Req.request('post', '/fa-pro-boao/ignore/airportEquipment/saveRideFlag', formData).then(res => {
-        if (res.code == 0) {
-          if (flag === '115002') {
-            this.$router.replace({
-              path: '/weChart',
-              query: {
-                isCheckHotel: false
-              }
-            })
-          } else {
-            this.$router.replace({
-              path: '/checkHotel',
-              query: {
-                confirmationNumber: this.confirmationNumber,
-                useCarNumber: this.useCarNumber,
-              }
-            })
+      })
+      Req.request(
+        'post',
+        '/fa-pro-boao/ignore/airportEquipment/saveRideFlag',
+        formData
+      )
+        .then(res => {
+          if (res.code == 0) {
+            if (flag === '115002') {
+              this.$router.replace({
+                path: '/weChart',
+                query: {
+                  isCheckHotel: false
+                }
+              })
+            } else {
+              this.$router.replace({
+                path: '/checkHotel',
+                query: {
+                  confirmationNumber: this.confirmationNumber,
+                  useCarNumber: this.useCarNumber
+                }
+              })
+            }
           }
-        }
-      }).catch(err => {
-        this.$message({
-          type: 'error',
-          dangerouslyUseHTMLString: true,
-          showClose: true,
-          message: err
         })
-      }).finally(() => {
-        loading.close();
+        .catch(err => {
+          this.$message({
+            type: 'error',
+            dangerouslyUseHTMLString: true,
+            showClose: true,
+            message: err
+          })
+        })
+        .finally(() => {
+          loading.close()
+        })
+    },
+    backTep() {
+      this.$router.replace({
+        path: '/inputConfirm',
+        query: {
+          confirmationNumber: this.$route.query.confirmationNumber
+        }
       })
     }
   }
@@ -141,7 +159,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-*{
+* {
   box-sizing: border-box;
 }
 .main {
@@ -157,7 +175,7 @@ export default {
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
     border-radius: 30px;
     box-sizing: border-box;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -166,7 +184,7 @@ export default {
     .content {
       width: 747px;
       height: 230px;
-      background: #F6F8FF;
+      background: #f6f8ff;
       border-radius: 10px;
       display: flex;
       flex-direction: column;
@@ -206,13 +224,13 @@ export default {
           line-height: 70px;
 
           &.yes {
-            background: #4170FA;
-            color: #FFFFFF;
+            background: #4170fa;
+            color: #ffffff;
           }
 
           &.no {
-            background: #FFFFFF;
-            color: #4170FA;
+            background: #ffffff;
+            color: #4170fa;
           }
         }
       }
@@ -233,7 +251,7 @@ export default {
       .input {
         width: 682px;
         min-height: 60px;
-        background: #FFFFFF;
+        background: #ffffff;
         border-radius: 10px;
         border: 1px solid #979797;
         margin-top: 20px;
@@ -247,10 +265,10 @@ export default {
     .line {
       position: relative;
 
-      >div {
+      > div {
         width: 15px;
         height: 53px;
-        background: #7D9AFF;
+        background: #7d9aff;
         border-radius: 8px;
         position: absolute;
         z-index: 9;
@@ -262,10 +280,10 @@ export default {
         padding: 2px 0;
         box-sizing: border-box;
 
-        >p {
+        > p {
           width: 12px;
           height: 12px;
-          background: #F6F8FF;
+          background: #f6f8ff;
           border-radius: 50%;
         }
 
@@ -289,5 +307,17 @@ export default {
   100% {
     right: 50px;
   }
+}
+.back {
+  width: 190px;
+  height: 70px;
+  border-radius: 10px;
+  text-align: center;
+  line-height: 70px;
+  background: #4170fa;
+  color: #ffffff;
+  margin-top: 30px;
+  font-size: 24px;
+  font-family: PingFangSC, PingFang SC;
 }
 </style>

@@ -27,7 +27,8 @@
             </div>
           </div>
           <p class="btn" @click.prevent="back">
-            返回首页 homepage ({{ second }}s)
+            返回首页 homepage
+            <!-- 返回首页 homepage ({{ second }}s) -->
           </p>
         </div>
         <div class="footer">
@@ -52,7 +53,8 @@
           <i>Please scan the QR code for more annual conference services</i>
         </div>
         <p class="btn" @click.prevent="back">
-          返回首页 homepage ({{ second }}s)
+          返回首页 homepage
+          <!-- 返回首页 homepage ({{ second }}s) -->
         </p>
       </div>
     </div>
@@ -75,7 +77,8 @@ export default {
       helper: null,
       id: '',
       printName: 'A', // 709001 小车代表   709002 统调代表
-      startX: 0 // 记录起始触摸位置
+      startX: 0, // 记录起始触摸位置
+      printTimer:null
     }
   },
   mounted() {
@@ -91,17 +94,24 @@ export default {
     document.addEventListener('touchmove', this.handleTouchMove, false)
     if (this.useCar) {
       this.location = this.$route.query.location.split('&')
-      this.initIo()
-    } else {
-      this.timer = setInterval(() => {
-        this.second -= 1
-        if (this.second <= 0) {
-          clearInterval(this.timer)
-          this.timer = null
-          this.$router.push('/')
-        }
-      }, 1000)
-    }
+      if(window.buildMode === 'scan') {
+        this.printTimer = setTimeout(()=>{
+          this.initIo()
+        },1500)
+      }else{
+        this.initIo()
+      }
+    } 
+    // else {
+    //   this.timer = setInterval(() => {
+    //     this.second -= 1
+    //     if (this.second <= 0) {
+    //       clearInterval(this.timer)
+    //       this.timer = null
+    //       this.$router.push('/')
+    //     }
+    //   }, 1000)
+    // }
   },
   methods: {
     back() {
@@ -142,7 +152,7 @@ export default {
       this.helper.resetFont()
       // 目的地
       this.helper.doFunction(TX_FONT_BOLD, TX_ON, 0)
-      this.helper.addStringLn(`    目的地          ${this.location[0] ?? '~'}`)
+      this.helper.addStringLn(`      目的地          ${this.location[0] ?? '~'}`)
       // 下划线
       this.helper.doFunction(TX_FONT_BOLD, TX_ON, 0)
       this.helper.addStringLn('------------------------------------------')
@@ -154,21 +164,23 @@ export default {
       this.helper.doFunction(TX_FEED, 5, 0)
       this.helper.doFunction(TX_ALIGN, TX_ALIGN_CENTER, 0)
       this.helper.addStringLn('请持小票前往乘车点乘车')
-      this.helper.addStringLn('Please bring your ticket to the ')
+      this.helper.addStringLn('Please bring your ticket to the')
       this.helper.addStringLn('boardingpoint to board the train')
       // 剪短打印纸
-      const status = this.helper.doFunction(TX_CUT, TX_CUT_FULL, 5, 'cut')
-      if (status === 'end') {
-        this.timer = setInterval(() => {
-          this.second -= 1
-          if (this.second <= 0) {
-            this.helper.close()
-            clearInterval(this.timer)
-            this.timer = null
-            this.$router.push('/')
-          }
-        }, 1000)
-      }
+      this.helper.doFunction(TX_CUT, TX_CUT_FULL, 5, 'cut')
+      this.helper.close()
+      // const status = this.helper.doFunction(TX_CUT, TX_CUT_FULL, 5, 'cut')
+      // if (status === 'end') {
+      //   this.timer = setInterval(() => {
+      //     this.second -= 1
+      //     if (this.second <= 0) {
+      //       this.helper.close()
+      //       clearInterval(this.timer)
+      //       this.timer = null
+      //       this.$router.push('/')
+      //     }
+      //   }, 1000)
+      // }
       axios('http://127.0.0.1:54321/print', {
         method: 'POST',
         data: this.helper.getAllContent(),
@@ -224,9 +236,11 @@ export default {
   unmounted() {
     document.removeEventListener('touchstart', this.handleTouchStart, false)
     document.removeEventListener('touchmove', this.handleTouchMove, false)
-    clearInterval(this.timer)
-    this.timer = null
+    // clearInterval(this.timer)
+    clearInterval(this.printTimer)
+    // this.timer = null
     this.helper = null
+    this.printTimer = null
   }
 }
 </script>

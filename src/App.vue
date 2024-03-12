@@ -5,7 +5,26 @@
 </template>
 <script>
 export default {
-  components: {
+  components: {},
+  mounted() {
+    // this.enterFullScreen();
+  },
+  methods: {
+    enterFullScreen() {
+      let element = document.documentElement
+      if (element.requestFullscreen) {
+        element.requestFullscreen()
+      } else if (element.mozRequestFullScreen) {
+        /* Firefox */
+        element.mozRequestFullScreen()
+      } else if (element.webkitRequestFullscreen) {
+        /* Chrome, Safari & Opera */
+        element.webkitRequestFullscreen()
+      } else if (element.msRequestFullscreen) {
+        /* IE/Edge */
+        element.msRequestFullscreen()
+      }
+    }
   }
 }
 </script>

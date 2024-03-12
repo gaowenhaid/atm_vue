@@ -17,7 +17,7 @@ const Req = {
         data: params
       }
     }
-    config.timeout = 50000
+    config.timeout = 10000
     if(paramsType === 'text') {
       axios.defaults.headers['Content-Type'] = 'text/plain'
     }

@@ -16,26 +16,6 @@
       />
       <img v-if="buildMode" src="../../assets/tag.gif" alt="" />
     </div>
-    <!-- 确认框 -->
-    <el-dialog
-      v-model="centerDialogVisible"
-      title="操作确认"
-      width="500"
-      align-center
-      @close="qrCodeData = ''"
-      :close-on-click-modal="false"
-    >
-      <span>是否需要修改乘车信息？</span>
-      <!-- <span>当前已选择-{{ rideFlag === '115001' ? '乘车' : '不乘车' }}-是否需要修改？</span> -->
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="toCheckHotelOrUserCar('n')">否</el-button>
-          <el-button type="primary" @click="toCheckHotelOrUserCar('o')"
-            >是</el-button
-          >
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -51,7 +31,7 @@ export default {
       contentList: [
         {
           className: 'scanQRcodes',
-          zh: '请在屏幕下方二维码扫码区域扫码签到',
+          zh: '请在屏幕下方二维码扫码区域亮码签到',
           en: 'Please scan the QR code in the QR code scanningarea below the screen to sign in'
         },
         {
@@ -74,12 +54,12 @@ export default {
       history.pushState(null, null, document.URL)
     })
     // 监听touchstart事件
-    document.addEventListener('touchstart', this.handleTouchStart, false)
-    // 监听touchmove事件
-    document.addEventListener('touchmove', this.handleTouchMove, false)
-    if (this.buildMode) {
-      window.addEventListener('keydown', this.handleEnterKey)
-    }
+    // document.addEventListener('touchstart', this.handleTouchStart, false)
+    // // 监听touchmove事件
+    // document.addEventListener('touchmove', this.handleTouchMove, false)
+    // if (this.buildMode) {
+    //   window.addEventListener('keydown', this.handleEnterKey)
+    // }
   },
   unmounted() {
     window.removeEventListener('keydown', this.handleEnterKey)
@@ -102,18 +82,28 @@ export default {
         'terminal',
         window.airportType === '718004' ? 'T1' : window.terminal
       )
-      Req.request(
-        'post',
-        this.buildMode
-          ? '/fa-pro-boao/ignore/airportEquipment/scanCodeSign'
-          : '/fa-pro-boao/ignore/airportEquipment/confirmationNumberSign',
-        formData
-      )
+      Req.request('post', '/fa-pro-boao/ignore/airportEquipment/scanCodeSign',formData)
         .then(res => {
-          if (res.code === 0 && res.data.signStatus) {
-            this.rideFlag = res.data.rideFlag
-            this.hotelName = res.data.hotel
-            this.centerDialogVisible = true
+          if (res.code === 0) {
+            if (res.data.rideFlag == '115002') {
+              this.$router.push({
+                path: '/weChart',
+                query: {
+                  isCheckHotel: false
+                }
+              })
+            } else {
+              // 跳转打印页面
+              this.$router.push({
+                path: '/weChart',
+                query: {
+                  isCheckHotel: true,
+                  id:res.data.id,
+                  typeName:res.data.vehicleType,
+                  location:res.data.hotel + '&' + res.data.hotelEn,
+                }
+              })
+            }
           } else {
             this.$router.replace({
               path: '/Fail',
@@ -145,81 +135,6 @@ export default {
       if (this.buildMode) return
       this.$router.replace('/inputConfirm')
     },
-    confirmSuccess(params, flag) {
-      let formData = new FormData()
-      for (const key in params) {
-        formData.append(key, params[key])
-      }
-      const loading = this.$loading({
-        lock: true,
-        text: 'Loading',
-        spinner: 'el-icon-loading',
-        background: 'rgba(0, 0, 0, 0.7)'
-      })
-      Req.request(
-        'post',
-        '/fa-pro-boao/ignore/airportEquipment/saveRideFlag',
-        formData
-      )
-        .then(res => {
-          if (res.code == 0) {
-            if (flag === '115002') {
-              this.$router.push({
-                path: '/weChart',
-                query: {
-                  isCheckHotel: false
-                }
-              })
-            } else {
-              this.$router.push({
-                path: '/checkHotel',
-                query: {
-                  confirmationNumber: this.value,
-                  useCarNumber: 1,
-                  value: this.hotelName ?? '~',
-                  isConfirm: true
-                }
-              })
-            }
-          }
-        })
-        .catch(err => {
-          this.$message({
-            type: 'error',
-            dangerouslyUseHTMLString: true,
-            showClose: true,
-            message: err
-          })
-        })
-        .finally(() => {
-          loading.close()
-        })
-    },
-    // 扫描确认号拿到当前状态
-    // 保存数据并去选择酒店页面还是用车页面
-    toCheckHotelOrUserCar(v) {
-      if (v === 'n') {
-        // 如果当前是乘车,选择否的话去选择酒店
-        // 如果当前是不乘车,选择否的话取跳转完成页面
-        this.confirmSuccess(
-          {
-            confirmationNumber: this.value,
-            rideFlag: this.rideFlag, // 115001 是  115002 否
-            ridingNumber: 1
-          },
-          this.rideFlag
-        )
-      } else {
-        // 去用车页面
-        this.$router.push({
-          path: 'useCar',
-          query: {
-            value: 1,
-            confirmationNumber: this.value
-          }
-        })
-      }
-    },
     handleEnterKey(event) {
       const char = event.key
       // 判断是否是回车键（Enter）
@@ -227,6 +142,8 @@ export default {
         this.qrCodeData = this.qrCodeData.replace(/Shift/g, '')
         this.qrCodeData = this.qrCodeData.replace(/Control/g, '')
         this.qrCodeData = this.qrCodeData.replace(/ArrowDown/g, '')
+        this.qrCodeData = this.qrCodeData.replace(/CapsLock/g, '')
+        this.qrCodeData = this.qrCodeData.replace(/Alt/g, '')
         if (this.qrCodeData.indexOf('ArrowDown') != -1) {
           this.qrCodeData = ''
           return this.$message({
