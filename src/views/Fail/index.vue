@@ -5,9 +5,9 @@
     <div class="main">
       <div class="height_1"></div>
       <div class="logo">
-        <img src="../../assets/失败.png" alt="">
-        <span>失败</span><br>
-        <span>failed</span><br>
+        <img src="../../assets/失败.png" alt="" />
+        <span>失败</span><br />
+        <span>failed</span><br />
       </div>
       <div class="content">
         <div class="zh">{{ content.zh }}</div>
@@ -20,40 +20,47 @@
 </template>
 
 <script>
-import Header from '../../components/header';
+import Header from '../../components/header'
 export default {
   components: { Header },
   data() {
     return {
       content: {
-        zh: "",
-        en: ""
-      },
-      inputErrorContent: ''
-    };
+        zh: '',
+        en: ''
+      }
+    }
   },
   mounted() {
     history.pushState(null, null, document.URL)
     window.addEventListener('popstate', function () {
       history.pushState(null, null, document.URL)
     })
-    this.inputErrorContent = this.$route.query.content
-    let type = window.buildMode
+    let type = this.$route.query.type
     if (type == 'scan') {
       this.content = {
-        zh: "请检查您的设备是否正常，并确保您正在使用正确的二维码",
-        en: "Please check if your device is functioning properly and ensure that you are using the correct QR code"
+        zh: '请检查您的设备是否正常，并确保您正在使用正确的二维码',
+        en: 'Please check if your device is functioning properly and ensure that you are using the correct QR code'
       }
     } else {
       this.content = {
-        zh: "您的确认号有误，请检查并重新输入",
-        en: "Your confirmation number is incorrect. Please check and re-enter it"
+        zh: '您的确认号有误，请检查并重新输入',
+        en: 'Your confirmation number is incorrect. Please check and re-enter it'
       }
     }
   },
   methods: {
     back() {
-      this.$router.replace('/')
+      if (this.$route.query.backScan != 'true') {
+        this.$router.replace('/')
+      } else {
+        this.$router.replace({
+          path: '/',
+          query: {
+            backScan: true
+          }
+        })
+      }
     }
   }
 }
@@ -70,7 +77,7 @@ export default {
 .main {
   width: 808px;
   height: calc(532px - 1px);
-  background: #FFFFFF;
+  background: #ffffff;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
   border-radius: 30px;
   margin: 0 auto;
@@ -125,7 +132,7 @@ export default {
   margin: 0 auto;
   border-radius: 50%;
   font-size: 45px;
-  color: #1260FC;
+  color: #1260fc;
   display: flex;
   justify-content: center;
   align-items: center;

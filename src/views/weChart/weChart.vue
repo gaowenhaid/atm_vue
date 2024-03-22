@@ -78,7 +78,7 @@ export default {
       id: '',
       printName: 'A', // 709001 小车代表   709002 统调代表
       startX: 0, // 记录起始触摸位置
-      printTimer:null
+      printTimer: null
     }
   },
   mounted() {
@@ -94,14 +94,10 @@ export default {
     document.addEventListener('touchmove', this.handleTouchMove, false)
     if (this.useCar) {
       this.location = this.$route.query.location.split('&')
-      if(window.buildMode === 'scan') {
-        this.printTimer = setTimeout(()=>{
-          this.initIo()
-        },1500)
-      }else{
+      this.printTimer = setTimeout(() => {
         this.initIo()
-      }
-    } 
+      }, 1300)
+    }
     // else {
     //   this.timer = setInterval(() => {
     //     this.second -= 1
@@ -115,7 +111,16 @@ export default {
   },
   methods: {
     back() {
-      this.$router.replace('/')
+      if (this.$route.query.backScan != 'true') {
+        this.$router.replace('/')
+      } else {
+        this.$router.replace({
+          path: '/',
+          query:{
+            backScan:true
+          }
+        })
+      }
     },
     initIo() {
       this.helper = new PrintHelper()
@@ -152,7 +157,9 @@ export default {
       this.helper.resetFont()
       // 目的地
       this.helper.doFunction(TX_FONT_BOLD, TX_ON, 0)
-      this.helper.addStringLn(`      目的地          ${this.location[0] ?? '~'}`)
+      this.helper.addStringLn(
+        `      目的地          ${this.location[0] ?? '~'}`
+      )
       // 下划线
       this.helper.doFunction(TX_FONT_BOLD, TX_ON, 0)
       this.helper.addStringLn('------------------------------------------')
@@ -272,7 +279,7 @@ export default {
           width: 417px;
           height: 348px;
           margin: 0 auto;
-
+          text-align: center;
           img {
             height: 100%;
             object-fit: cover;
@@ -386,7 +393,7 @@ export default {
 
       .image {
         width: 587px;
-        height: 490px;
+        height: 425px;
         margin: 0 auto;
         margin-top: 13px;
         text-align: center;

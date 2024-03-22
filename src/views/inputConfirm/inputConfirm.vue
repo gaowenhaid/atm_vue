@@ -69,13 +69,6 @@ export default {
                 confirmationNumber: this.$refs.keyCode.currValue
               }
             })
-          } else {
-            this.$router.replace({
-              path: '/Fail',
-              query: {
-                content: ''
-              }
-            })
           }
         })
         .catch(err => {
@@ -84,6 +77,12 @@ export default {
             dangerouslyUseHTMLString: true,
             showClose: true,
             message: err
+          })
+          this.$router.replace({
+            path: '/Fail',
+            query: {
+              type: 'confirm'
+            }
           })
         })
         .finally(() => {
@@ -95,11 +94,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-::v-deep .el-dialog {
-  margin-top: 50% !important;
-  transform: translateY(-50%);
-}
-
 .main {
   width: 100%;
   height: 100%;

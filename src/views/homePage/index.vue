@@ -1,234 +1,83 @@
 <template>
-  <div
-    class="homePage"
-    :class="{
-      scan: buildMode,
-      confirm: !buildMode
-    }"
-  >
-    <div class="height_1"></div>
-    <Header />
-    <div class="main" @click="toInputConfirm"></div>
-    <div class="item">
-      <Footer
-        class="footer"
-        :content="buildMode ? contentList[0] : contentList[1]"
-      />
-      <img v-if="buildMode" src="../../assets/tag.gif" alt="" />
+  <div ref="homePage" class="homePage">
+    <div class="warp">
+      <div ref="confirm" class="confirm">
+        <confirmItem v-if="!scrollPosition" />
+      </div>
+      <div ref="scan" class="scan">
+        <scanItem v-if="scrollPosition" />
+      </div>
     </div>
   </div>
 </template>
-
 <script>
-import Footer from '../../components/footer'
-import Header from '../../components/header'
-import Req from '../../utils/request'
+import scanItem from './scan.vue'
+import confirmItem from './confirmItem.vue'
 export default {
-  components: { Footer, Header },
+  components: { scanItem, confirmItem },
   data() {
     return {
-      buildMode: window.buildMode === 'scan',
-      contentList: [
-        {
-          className: 'scanQRcodes',
-          zh: '请在屏幕下方二维码扫码区域亮码签到',
-          en: 'Please scan the QR code in the QR code scanningarea below the screen to sign in'
-        },
-        {
-          className: 'confirmNumber',
-          zh: '请输入您的确认号，以完成本次操作',
-          en: 'Please enter your confirmation number to complete this operation'
-        }
-      ],
-      rideFlag: '115001',
-      hotelName: '',
-      centerDialogVisible: false,
-      qrCodeData: '',
-      startX: 0 // 记录起始触摸位置
+      scrollPosition: 0,
+      timer: null
+    }
+  },
+  watch: {
+    scrollPosition: {
+      handler(v) {
+        this.changeScanConfirm(v)
+      },
+      immediate: true
     }
   },
   mounted() {
-    this.qrCodeData = ''
-    history.pushState(null, null, document.URL)
-    window.addEventListener('popstate', function () {
-      history.pushState(null, null, document.URL)
+    const homePage = document.querySelector('.homePage')
+    const backScan = this.$route.query.backScan
+    console.log(backScan)
+    if(backScan) homePage.scrollLeft = 1024
+    homePage.addEventListener('scroll', e => {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => {
+        if (e.target.scrollLeft > 512) {
+          e.target.scrollLeft = 1024
+          this.scrollPosition = e.target.scrollLeft
+        } else {
+          e.target.scrollLeft = 0
+          this.scrollPosition = e.target.scrollLeft
+        }
+      }, 100)
     })
-    // 监听touchstart事件
-    // document.addEventListener('touchstart', this.handleTouchStart, false)
-    // // 监听touchmove事件
-    // document.addEventListener('touchmove', this.handleTouchMove, false)
-    // if (this.buildMode) {
-    //   window.addEventListener('keydown', this.handleEnterKey)
-    // }
-  },
-  unmounted() {
-    window.removeEventListener('keydown', this.handleEnterKey)
-    document.removeEventListener('touchstart', this.handleTouchStart, false)
-    document.removeEventListener('touchmove', this.handleTouchMove, false)
   },
   methods: {
-    // 获取是否成功扫码
-    getIsScanSuccess(value) {
-      const loading = this.$loading({
-        lock: true,
-        text: 'Loading',
-        spinner: 'el-icon-loading',
-        background: 'rgba(0, 0, 0, 0.7)'
-      })
-      let formData = new FormData()
-      formData.append('confirmationNumber', value)
-      formData.append('airportType', window.airportType)
-      formData.append(
-        'terminal',
-        window.airportType === '718004' ? 'T1' : window.terminal
-      )
-      Req.request('post', '/fa-pro-boao/ignore/airportEquipment/scanCodeSign',formData)
-        .then(res => {
-          if (res.code === 0) {
-            if (res.data.rideFlag == '115002') {
-              this.$router.push({
-                path: '/weChart',
-                query: {
-                  isCheckHotel: false
-                }
-              })
-            } else {
-              // 跳转打印页面
-              this.$router.push({
-                path: '/weChart',
-                query: {
-                  isCheckHotel: true,
-                  id:res.data.id,
-                  typeName:res.data.vehicleType,
-                  location:res.data.hotel + '&' + res.data.hotelEn,
-                }
-              })
-            }
-          } else {
-            this.$router.replace({
-              path: '/Fail',
-              query: {
-                content: ''
-              }
-            })
-          }
-        })
-        .catch(err => {
-          this.$message({
-            type: 'error',
-            dangerouslyUseHTMLString: true,
-            showClose: true,
-            message: err
-          })
-          this.$router.replace({
-            path: '/Fail',
-            query: {
-              content: err
-            }
-          })
-        })
-        .finally(() => {
-          loading.close()
-        })
-    },
-    toInputConfirm() {
-      if (this.buildMode) return
-      this.$router.replace('/inputConfirm')
-    },
-    handleEnterKey(event) {
-      const char = event.key
-      // 判断是否是回车键（Enter）
-      if (char === 'Enter') {
-        this.qrCodeData = this.qrCodeData.replace(/Shift/g, '')
-        this.qrCodeData = this.qrCodeData.replace(/Control/g, '')
-        this.qrCodeData = this.qrCodeData.replace(/ArrowDown/g, '')
-        this.qrCodeData = this.qrCodeData.replace(/CapsLock/g, '')
-        this.qrCodeData = this.qrCodeData.replace(/Alt/g, '')
-        if (this.qrCodeData.indexOf('ArrowDown') != -1) {
-          this.qrCodeData = ''
-          return this.$message({
-            type: 'error',
-            dangerouslyUseHTMLString: true,
-            showClose: true,
-            message: '请勿重复扫码!'
-          })
-        }
-        const str = this.qrCodeData
-        this.value = this.qrCodeData
-        this.qrCodeData = ''
-        if (!this.centerDialogVisible) this.getIsScanSuccess(str)
+    changeScanConfirm(v) {
+      if (v === 0) {
+        console.log('扫码')
       } else {
-        this.qrCodeData += char
-      }
-    },
-    handleTouchStart(e) {
-      // 记录起始触摸位置
-      this.startX = e.touches[0].clientX
-    },
-    handleTouchMove(e) {
-      // 记录并比较当前触摸位置和起始触摸位置
-      const currentX = e.touches[0].clientX
-      const distance = currentX - this.startX
-
-      if (distance < 0) {
-        // 当滑动方向为向左时
-        e.preventDefault() // 阻止默认滑动行为
+        console.log('确认号')
       }
     }
   }
 }
 </script>
-
 <style lang="less" scoped>
-::v-deep .el-dialog {
-  margin-top: 50% !important;
-  transform: translateY(-50%);
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
 }
-
 .homePage {
   width: 1024px;
   height: 1280px;
-  position: relative;
-
-  &.confirm {
-    background-image: url('../../assets/confirm.gif');
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
-
-  &.scan {
-    background-image: url('../../assets/扫码备份.png');
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
-
-  .item {
-    .footer {
-      position: absolute;
-      bottom: 70px;
-      text-align: center;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    img {
-      width: 110px;
-      height: 110px;
-      transform: rotate(180deg);
-      position: absolute;
-      bottom: 82px;
-      right: 106px;
+  overflow: scroll;
+  .warp {
+    width: 2048px;
+    height: 100%;
+    display: flex;
+    > div {
+      width: 1024px;
+      height: 100%;
     }
   }
-}
-
-.main {
-  width: 400px;
-  height: 388px;
-  margin: 20px auto;
-  position: absolute;
-  bottom: 425px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 </style>
