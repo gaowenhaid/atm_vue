@@ -23,7 +23,7 @@ export default ({
 
 <style lang="less" scoped>
 .footer {
-  width: 856px;
+  width: 826px;
   height: 282px;
   line-height: 2rem;
   display: flex;

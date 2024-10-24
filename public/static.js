@@ -1,4 +1,4 @@
-window.nowLocation = '海口T1机场'
+window.nowLocation = '海口T8机场'
 window.airportType = '718002'
 window.terminal = 'T1'
 /***

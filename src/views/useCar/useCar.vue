@@ -19,8 +19,16 @@
         </div>
       </div>
       <div class="content bottomContent">
+        <div class="noFooter">
+          <p>参会嘉宾 Attending guests</p>
+        <div class="input noTitle">
+          <span>{{ selectPerson.name }}</span>
+          <span>{{ selectPerson.orgName }} </span>
+          <span>{{ selectPerson.position}}</span>
+        </div>
         <p>乘车人数 Number of passe</p>
         <div class="input" @click.prevent="toInputPersonNumber">{{ useCarNumber }}</div>
+        </div>
         <div class="btns">
           <p class="yes" @click.prevent="toCheckHotel">是 Yes</p>
           <p class="no" @click.prevent="toQRcODE">否 No</p>
@@ -41,7 +49,8 @@ export default {
   data() {
     return {
       useCarNumber: '1', // 乘车人数
-      confirmationNumber: '' // 确认号
+      confirmationNumber: '', // 确认号
+      selectPerson: {}
     }
   },
   mounted() {
@@ -56,6 +65,7 @@ export default {
     } else {
       this.useCarNumber = 1
     }
+    this.getPerson(confirmationNumber)
   },
   methods: {
     // 点击输入乘车人数
@@ -153,6 +163,28 @@ export default {
           confirmationNumber: this.$route.query.confirmationNumber
         }
       })
+    },
+    getPerson(v) {
+      let formData = new FormData()
+      formData.append('confirmationNumber', v)
+      Req.request(
+        'post',
+        '/fa-pro-boao/ignore/airportEquipment/getRegInfoByName',
+        formData
+      )
+        .then(res => {
+          if (res.code == 0 && res.data.length) {
+            this.selectPerson = res.data[0]
+          }
+        })
+        .catch(err => {
+          this.$message({
+            type: 'error',
+            dangerouslyUseHTMLString: true,
+            showClose: true,
+            message: err
+          })
+        })
     }
   }
 }
@@ -238,8 +270,9 @@ export default {
 
     .bottomContent {
       display: block;
-      padding: 46px 30px 30px 30px;
+      padding: 26px 30px 20px 30px;
       height: 304px;
+      
       p {
         text-align: start;
         font-size: 26px;
@@ -247,7 +280,10 @@ export default {
         font-weight: 400;
         color: #333333;
       }
-
+      .noFooter {
+        height:calc(304px - 45px);
+        overflow: auto;
+      }
       .input {
         width: 682px;
         min-height: 60px;
@@ -255,10 +291,25 @@ export default {
         border-radius: 10px;
         border: 1px solid #979797;
         margin-top: 20px;
+        margin-bottom: 20px;
         padding: 0 10px;
-        line-height: 60px;
         font-size: 26px;
-        word-wrap: break-word;
+        word-break: break-all;
+        display: flex;
+        align-items: center;
+        &.noTitle {
+          display: flex;
+          justify-content: space-evenly;
+          border: none;
+          background: #fff;
+          color: #000;
+          // padding: 0;
+          > span {
+            width: 33%;
+            display: flex;
+            align-items: center;
+          }
+        }
       }
     }
 
@@ -316,7 +367,7 @@ export default {
   line-height: 70px;
   background: #4170fa;
   color: #ffffff;
-  margin-top: 30px;
+  margin-top: 120px;
   font-size: 24px;
   font-family: PingFangSC, PingFang SC;
 }

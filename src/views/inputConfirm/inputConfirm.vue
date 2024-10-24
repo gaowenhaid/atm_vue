@@ -3,11 +3,14 @@
     <div class="height_1"></div>
     <Header />
     <div class="keycodeWarp">
-      <KeyIndex
+      <div class="face_pic">
+        <el-button type="text" class="face_btn" @click="toFaceCheck()">人脸识别 Face recognition</el-button>
+      </div>
+      <doubleInput
+        :confirmationNumber="confirmationNumber"
         ref="keyCode"
-        :inputValue="confirmationNumber"
-        :title="'确认号 Confirmation num'"
-      ></KeyIndex>
+        :title="['姓名 Name', '确认号 Confirmation num']"
+      ></doubleInput>
       <div class="buttonWarp">
         <div class="button" @click="$router.push('/')">上一步 back</div>
         <div class="button" @click="next">下一步 next step</div>
@@ -17,13 +20,13 @@
 </template>
 
 <script>
-import KeyIndex from '../../components/keyCode/index.vue'
 import Header from '../../components/header'
+import doubleInput from './doubleInput.vue'
 import Req from '../../utils/request'
 export default {
   components: {
-    KeyIndex,
-    Header
+    Header,
+    doubleInput
   },
   data() {
     return {
@@ -34,13 +37,23 @@ export default {
   mounted() {
     if (this.$route.query.confirmationNumber) {
       this.confirmationNumber = this.$route.query.confirmationNumber
+      
     }
+    
   },
   methods: {
     // 点击下一步
     next() {
-      const inputValue = this.$refs.keyCode.currValue
-      if (!inputValue) return
+      const inputValue = this.$refs.keyCode.inputCode
+      if (!inputValue) {
+        this.$message({
+          type: 'error',
+          dangerouslyUseHTMLString: true,
+          showClose: true,
+          message: '请输入确认号或姓名以进行下一步!'
+        })
+        return
+      }
       let formData = new FormData()
       formData.append('confirmationNumber', inputValue)
       formData.append('airportType', window.airportType)
@@ -66,7 +79,7 @@ export default {
               path: 'useCar',
               query: {
                 value: 1,
-                confirmationNumber: this.$refs.keyCode.currValue
+                confirmationNumber: this.$refs.keyCode.inputCode
               }
             })
           }
@@ -88,6 +101,24 @@ export default {
         .finally(() => {
           loading.close()
         })
+    },
+    /* 人脸识别 */
+    toFaceCheck(){
+      if (!this.$refs.keyCode.inputCode) {
+        this.$message({
+          type: 'error',
+          dangerouslyUseHTMLString: true,
+          showClose: true,
+          message: '请输入确认号!'
+        })
+        return
+      }
+      this.$router.push({
+        path: '/faceRecognition',
+        query: {
+          confirmationNumber: this.$refs.keyCode.inputCode
+        }
+      })
     }
   }
 }
@@ -103,17 +134,32 @@ export default {
 .keycodeWarp {
   width: 952px;
   height: 999px;
-  padding-top: 60px;
+  padding-top: 10px;
   margin: 0 auto;
   box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
   border-radius: 30px;
   box-sizing: border-box;
   background-color: #ffffff;
+  overflow: auto;
+  .face_pic {
+    width: 100%;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 100px;
+    box-sizing: border-box;
+    .face_btn {
+      font-size: 24px;
+      font-family: PingFangSC, PingFang SC;
+      color: #4170fa;
+    }
+  }
   .buttonWarp {
     width: 100%;
     height: 70px;
     display: flex;
-    margin-top: 50px;
+    margin-top: 30px;
     .button {
       margin: 0 auto;
       width: 262px;

@@ -5,7 +5,8 @@ import inputConfirm from '../views/inputConfirm/inputConfirm.vue'  // 输入确�
 import useCar from '../views/useCar/useCar.vue'  // 用车
 import checkHotel from '../views/checkHotel/checkHotel.vue'  // 选择酒店
 import inputHotelName from '../views/inputHotelName/inputHotelName.vue'  // 选择酒店
-import weChart from '../views/weChart/weChart.vue'
+import weChart from '../views/weChart/weChart.vue'  // 扫码
+import FaceRecognition from '../views/faceRecognition/index.vue' // 人脸识别
 const routes = [
   {
     path: '/',
@@ -41,7 +42,12 @@ const routes = [
     path: '/weChart',
     name: 'weChart',
     component: weChart
-  }
+  },
+  {
+    path: '/faceRecognition',
+    name: 'faceRecognition',
+    component: FaceRecognition
+  },
 ]
 const router = createRouter({
   history: createWebHashHistory(process.env.BASE_URL),

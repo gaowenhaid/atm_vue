@@ -29,8 +29,8 @@ export default {
         },
         {
           className: 'confirmNumber',
-          zh: '请输入您的确认号，以完成本次操作',
-          en: 'Please enter your confirmation number to complete this operation'
+          zh: '请输入您的姓名/确认号完成签到',
+          en: 'Please enter your name or confirmation number to complete the check-in process'
         }
       ],
       rideFlag: '115001',

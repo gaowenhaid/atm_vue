@@ -18,8 +18,8 @@ export default {
       default: ''
     },
     title: {
-      type: String,
-      default: ''
+      type: Array,
+      default: () => []
     }
   },
   components: {
@@ -57,7 +57,7 @@ export default {
     }
 
     p {
-      margin-bottom: 40px; 
+      margin-bottom: 40px;
       font-size: 26px;
     }
 
@@ -66,9 +66,9 @@ export default {
       font-size: 26px;
       width: 752px;
       height: 88px;
-      background: #FFFFFF;
+      background: #ffffff;
       border-radius: 10px;
-      border: 1px solid #979797;
+      // border: 1px solid #979797;
     }
   }
 

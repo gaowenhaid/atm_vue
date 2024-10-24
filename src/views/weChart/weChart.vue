@@ -170,9 +170,9 @@ export default {
       // TIPS
       this.helper.doFunction(TX_FEED, 5, 0)
       this.helper.doFunction(TX_ALIGN, TX_ALIGN_CENTER, 0)
-      this.helper.addStringLn('请持小票前往乘车点乘车')
-      this.helper.addStringLn('Please bring your ticket to the')
-      this.helper.addStringLn('boardingpoint to board the train')
+      this.helper.addStringLn('请持小票前往博鳌亚洲论坛年会乘车地点乘车')
+      this.helper.addStringLn('Please present this ticket at the BFA Annual Conference bus stop')
+      this.helper.addStringLn('BFA Annual Conference bus stop')
       // 剪短打印纸
       this.helper.doFunction(TX_CUT, TX_CUT_FULL, 5, 'cut')
       this.helper.close()
